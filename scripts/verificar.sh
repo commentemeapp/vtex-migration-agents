@@ -149,6 +149,17 @@ else
 	aviso "todavía no hay agentes (no verificado)"
 fi
 
+# ─────────────────────────────── otros agentes ───────────────────────────────
+# Gemini CLI, Codex, GitHub Copilot y Cursor: se generan desde los agentes de Claude Code con
+# scripts/exportar.mjs y no se editan a mano.
+paso "Versiones para otros agentes"
+if SALIDA=$(node scripts/exportar.mjs --verificar 2>&1); then
+	ok "$(printf '%s' "$SALIDA" | tail -1 | sed 's/^✓ //')"
+else
+	printf '%s\n' "$SALIDA" | sed 's/^/    /'
+	mal "las versiones para otros agentes no coinciden con su fuente"
+fi
+
 # ─────────────────────────────── claude plugin validate ───────────────────────────────
 paso "claude plugin validate --strict"
 if command -v claude >/dev/null 2>&1; then

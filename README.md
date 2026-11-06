@@ -89,6 +89,28 @@ Este plugin no reemplaza a [vtex-io-agents](https://github.com/commentemeapp/vte
 MCP `vtex-io`, cada uno con su prefijo, y pueden estar instalados a la vez. En una migración a Store Framework,
 `vtex-io-agents:vtex-reviewer` y `vtex-io-agents:vtex-qa` revisan y validan lo que escribió `vtex-migrator`.
 
+### En otros agentes
+
+El agente también funciona en Gemini CLI, Codex, GitHub Copilot y Cursor. Cada versión se genera desde los archivos de
+Claude Code con `scripts/exportar.mjs`: cambian el frontmatter y los nombres de las herramientas, el texto es el
+mismo. Fuera de Claude Code no hay skills precargadas, así que el agente empieza diciendo cuales cargar; se instalan
+con `npx skills add <repositorio> -a <agente>`.
+
+| Agente         | Instalación                                                                                                                                                                                                                                           |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Gemini CLI     | `gemini extensions install https://github.com/commentemeapp/vtex-migration-agents`: trae el agente y el servidor MCP (`vtex-io`)                                                                                                                      |
+| Codex          | Copia `adaptadores/codex/vtex-migrator.toml` a `~/.codex/agents/` y agrega el servidor MCP con los comandos de abajo                                                                                                                                  |
+| GitHub Copilot | Copia `adaptadores/copilot/vtex-migrator.agent.md` a `~/.copilot/agents/` o a `.github/agents/` del proyecto; el servidor MCP va en `~/.copilot/mcp-config.json`, con el mismo `mcpServers` de [`.mcp.json`](plugins/vtex-migration-agents/.mcp.json) |
+| Cursor         | Copia `adaptadores/cursor/vtex-migrator.md` a `~/.cursor/agents/` o a `.cursor/agents/` del proyecto; el servidor MCP va en `~/.cursor/mcp.json`, con el mismo `mcpServers`                                                                           |
+
+```bash
+codex mcp add vtex-io -- npx -y @commenteme/vtex-io-mcp
+```
+
+En Copilot, las herramientas MCP van como `<servidor>/<herramienta>`; en Gemini CLI, como `mcp_<servidor>_<herramienta>`;
+en Codex y Cursor, el agente hereda las del servidor configurado. Cursor no tiene lista de herramientas por agente: los
+agentes que no escriben van con `readonly: true`.
+
 ### Actualizar y desinstalar
 
 | Acción      | Comando                                                         |
