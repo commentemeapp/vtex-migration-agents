@@ -14,3 +14,4 @@ las versiones siguen [SemVer](https://semver.org/lang/es/).
   propia. Cubre Legacy a Store Framework, Store Framework a FastStore y Legacy a FastStore.
 - Servidor MCP `vtex-io` con `npx -y @commenteme/vtex-io-mcp`.
 - Gate `scripts/verificar.sh`, `scripts/probar-mcp.mjs` y CI.
+- README en el estándar commente.me Atacama, con header, social preview y avatar.
