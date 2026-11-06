@@ -1,0 +1,14 @@
+{
+	"name": "vtex-migration-agents",
+	"version": "0.2.0",
+	"description": "Un subagente que migra tiendas VTEX entre generaciones de storefront (Legacy CMS Portal, VTEX IO Store Framework y FastStore): detecta la generación del repositorio, pregunta el destino, planea y escribe el código nuevo en una rama propia. Incluye el servidor MCP vtex-io-mcp.",
+	"mcpServers": {
+		"vtex-io": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@commenteme/vtex-io-mcp"
+			]
+		}
+	}
+}
