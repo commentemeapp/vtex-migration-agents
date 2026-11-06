@@ -1,0 +1,98 @@
+# Gate del repositorio en cada push y pull request de las dos ramas (dev y main).
+# El mismo ./scripts/verificar.sh que se corre en la máquina.
+name: ci
+
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+    branches: [dev, main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verificar:
+    name: gate del repositorio
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      # Para `claude plugin validate`, que no necesita sesión iniciada.
+      - run: npm install --global @anthropic-ai/claude-code
+      - run: ./scripts/verificar.sh
+
+  mcp:
+    name: el servidor MCP arranca y lista sus herramientas
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      # Ejecuta el mismo comando que .mcp.json y pide la lista de tools por stdio:
+      # si el paquete deja de publicarse o cambia el nombre de una tool que un
+      # agente usa, falla aquí y no en la sesión de quien instaló el plugin.
+      - run: node scripts/probar-mcp.mjs
+
+  secretos:
+    name: búsqueda de secretos
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # El binario de gitleaks, no gitleaks-action: la action pide licencia en
+    # repositorios de una organización. Versión fija y checksum verificado.
+    env:
+      GITLEAKS_VERSION: 8.28.0
+      GITLEAKS_SHA256: a65b5253807a68ac0cafa4414031fd740aeb55f54fb7e55f386acb52e6a840eb
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: instalar gitleaks
+        run: |
+          archivo="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSLO "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/${archivo}"
+          echo "${GITLEAKS_SHA256}  ${archivo}" | sha256sum --check
+          tar -xzf "${archivo}" gitleaks
+      - name: historial completo
+        run: ./gitleaks git --redact --no-banner --verbose .
+
+  ramas:
+    name: flujo dev -> main
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: github.event_name == 'push' && github.ref_name == 'main'
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # Flujo dev -> main, sin qa (decisión del usuario el 30/10/2026). La promoción es
+      # merge de la rama entera: main solo tiene merges de dev, y el commit de main lleva tag.
+      - name: main solo recibe lo que ya está en dev, con tag anotado
+        run: |
+          git fetch --quiet --tags origin dev
+          PROPIOS=$(git log --no-merges --format='%h %s' origin/dev.."$GITHUB_SHA")
+          if [ -n "$PROPIOS" ]; then
+            echo "::error::main tiene commits que no están en dev:"
+            echo "$PROPIOS"
+            exit 1
+          fi
+          TAG=$(git describe --exact-match --tags "$GITHUB_SHA" 2>/dev/null || true)
+          if [ -z "$TAG" ]; then
+            echo "::error::el commit de main no tiene tag de versión"
+            exit 1
+          fi
+          if [ "$(git cat-file -t "refs/tags/$TAG")" != "tag" ]; then
+            echo "::error::el tag $TAG no es anotado"
+            exit 1
+          fi
