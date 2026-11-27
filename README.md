@@ -1,14 +1,13 @@
-<p align="center">
-	<img src="assets/banner.png" width="100%" alt="vtex-migration-agents · Migra tu tienda VTEX de Legacy a VTEX IO, de VTEX IO a FastStore o de Legacy a FastStore.">
-</p>
+![vtex-migration-agents · Migra tu tienda VTEX de Legacy a VTEX IO, de VTEX IO a FastStore o de Legacy a FastStore.](.github/assets/banner.png)
 
 # vtex-migration-agents
 
 **Un subagente de Claude Code que migra tu tienda VTEX de Legacy a VTEX IO, de VTEX IO a FastStore o de Legacy a
 FastStore, con el servidor MCP vtex-io-mcp incluido.**
 
-[![versión](https://img.shields.io/github/v/tag/commentemeapp/vtex-migration-agents?label=versi%C3%B3n&labelColor=005278&color=FFBD38)](./CHANGELOG.md)
-[![licencia](https://img.shields.io/github/license/commentemeapp/vtex-migration-agents?label=licencia&labelColor=005278&color=FFBD38)](./LICENSE)
+[![versión](https://badgen.net/github/tag/commentemeapp/vtex-migration-agents?color=005278)](./CHANGELOG.md)
+[![licencia](https://badgen.net/github/license/commentemeapp/vtex-migration-agents)](./LICENSE)
+[![último commit](https://badgen.net/github/last-commit/commentemeapp/vtex-migration-agents/main)](https://github.com/commentemeapp/vtex-migration-agents/commits/main)
 
 ## Instalación
 
@@ -145,7 +144,7 @@ node scripts/probar-mcp.mjs
 claude --plugin-dir ./plugins/vtex-migration-agents
 ```
 
-`scripts/verificar.sh` es el gate, el mismo del CI: JSON válido, la misma versión en los tres manifiestos, la
+`scripts/verificar.sh` es el gate y corre en tu máquina antes de cada merge (no hay CI en GitHub): JSON válido, la misma versión en los tres manifiestos, la
 configuración del servidor MCP, el frontmatter del agente, `claude plugin validate --strict`, Prettier, `bash -n` y
 una búsqueda de rastros. Como el agente escribe archivos, el gate exige también que las acciones prohibidas estén
 escritas en su cuerpo. La versión vive en tres lugares (las dos de `.claude-plugin/marketplace.json` y `plugin.json`):
@@ -156,6 +155,4 @@ súbela en los tres a la vez.
 Conventional Commits, rama desde `dev` y PR contra `dev`.
 [MIT](./LICENSE).
 
----
-
-Hecho por [commente.me](https://www.commente.me) · hablecon@commente.me
+_Hecho con amor y café por [zeluizr](https://github.com/zeluizr) y con la ayuda de [Claude](https://claude.ai/referral/Cz_UimA0NQ) ☕_
